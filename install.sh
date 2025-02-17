@@ -1,18 +1,43 @@
 #! /bin/bash
 
-response=$(curl -X POST https://www.cursor.com/api/dashboard/get-download-link -H "Content-Type: application/json" -d '{"platform": 5}')
+CURRENT_DIR=`pwd`
 
-download_link=$(echo $response | jq -r '.cachedDownloadLink')
+cd /tmp
 
-curl -L $download_link -o ~/.local/cursor-latest.AppImage
+curl -L --output cursor.appimage https://downloader.cursor.sh/linux/x64
+sudo mv cursor.appimage /opt/cursor.appimage
+sudo chmod +x /opt/cursor.appimage
+sudo apt install -y fuse3
+sudo apt install -y libfuse2t64
 
-chmod +x ~/.local/cursor-latest.AppImage
+DESKTOP_FILE="/usr/share/applications/cursor.desktop"
 
-curl -L https://raw.githubusercontent.com/kuartz-org/install_cursor/refs/heads/main/launch_cursor.sh -o ~/.local/bin/launch_cursor.sh
+sudo bash -c "cat > $DESKTOP_FILE" <<EOL
+[Desktop Entry]
+Name=Cursor
+Comment=AI-powered code editor
+Exec=/opt/cursor.appimage --no-sandbox
+Icon=/home/$USER/.local/share/omakub/applications/icons/cursor.png
+Type=Application
+Categories=Development;IDE;
+EOL
 
-chmod +x ~/.local/bin/launch_cursor.sh
+if [ -f "$DESKTOP_FILE" ]; then
+  echo "cursor.desktop created successfully"
+else
+  echo "Failed to create cursor.desktop"
+fi
 
-echo "alias cursor='~/.local/bin/launch_cursor.sh'" >> ~/.zshrc
+if [ ! -d "~/.local/bin/launch_cursor" ]; then
+  curl -L https://raw.githubusercontent.com/kuartz-org/install_cursor/refs/heads/main/launch_cursor.sh -o ~/.local/bin/launch_cursor
+  chmod +x ~/.local/bin/launch_cursor
+fi
+
+if ! grep -q "alias cursor='launch_cursor ." ~/.zshrc; then
+  echo "alias cursor='launch_cursor ." >> ~/.zshrc
+fi
+
+cd "$CURRENT_DIR"
 
 echo "Cursor installed successfully."
-echo "Use 'cursor' command to launch Cursor and forget 'code' command!"
+echo "Use 'cursor' command to launch Cursor"
