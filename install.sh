@@ -29,12 +29,12 @@ else
 fi
 
 if [ ! -d "~/.local/bin/launch_cursor" ]; then
-  curl -L https://raw.githubusercontent.com/kuartz-org/install_cursor/refs/heads/main/launch_cursor.sh -o ~/.local/bin/launch_cursor
+  curl -L https://raw.githubusercontent.com/kuartz-org/install_cursor/refs/heads/main/launch_cursor -o ~/.local/bin/launch_cursor
   chmod +x ~/.local/bin/launch_cursor
 fi
 
 if ! grep -q "alias cursor='launch_cursor ." ~/.zshrc; then
-  echo "alias cursor='launch_cursor ." >> ~/.zshrc
+  echo "alias cursor='launch_cursor .'" >> ~/.zshrc
 fi
 
 cd "$CURRENT_DIR"
