@@ -1,10 +1,10 @@
 #! /bin/bash
 
-CURRENT_DIR=`pwd`
+CURRENT_DIR=$(pwd)
 
 cd /tmp
 
-curl -L "https://www.cursor.com/api/download?platform=linux-x64&releaseTrack=stable" | jq -r '.downloadUrl' | xargs curl -L -o cursor.appimage
+curl -sL "https://www.cursor.com/api/download?platform=linux-x64&releaseTrack=stable" | jq -r '.downloadUrl' | xargs curl -sL -o cursor.appimage
 
 sudo mv cursor.appimage /opt/cursor.appimage
 sudo chmod +x /opt/cursor.appimage
@@ -30,12 +30,12 @@ else
 fi
 
 if [ ! -d "~/.local/bin/launch_cursor" ]; then
-  curl -L https://raw.githubusercontent.com/kuartz-org/install_cursor/refs/heads/main/launch_cursor -o ~/.local/bin/launch_cursor
+  curl -sL https://raw.githubusercontent.com/kuartz-org/install_cursor/refs/heads/main/launch_cursor -o ~/.local/bin/launch_cursor
   chmod +x ~/.local/bin/launch_cursor
 fi
 
 if ! grep -q "alias cursor='launch_cursor ." ~/.zshrc; then
-  echo "alias cursor='launch_cursor .'" >> ~/.zshrc
+  echo "alias cursor='launch_cursor .'" >>~/.zshrc
 fi
 
 cd "$CURRENT_DIR"
