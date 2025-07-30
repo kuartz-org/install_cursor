@@ -31,13 +31,14 @@ if apt-cache show libfuse2t64 > /dev/null 2>&1; then
 fi
 
 DESKTOP_FILE="/usr/share/applications/cursor.desktop"
+ICON_DIR="$HOME/.local/share/applications/icons"
 
 sudo bash -c "cat > $DESKTOP_FILE" <<EOL
 [Desktop Entry]
 Name=Cursor
 Comment=AI-powered code editor
 Exec=/opt/cursor.appimage --no-sandbox
-Icon=/home/$USER/.local/share/omakub/applications/icons/cursor.png
+Icon=$ICON_DIR/cursor.png
 Type=Application
 Categories=Development;IDE;
 Version=$LATEST_VERSION
@@ -46,6 +47,11 @@ EOL
 if [ ! -d "~/.local/bin/launch_cursor" ]; then
   curl -sL https://raw.githubusercontent.com/kuartz-org/install_cursor/refs/heads/main/launch_cursor -o ~/.local/bin/launch_cursor
   chmod +x ~/.local/bin/launch_cursor
+fi
+
+mkdir -p "$ICON_DIR"
+if [ ! -f "$ICON_DIR/cursor.png" ]; then
+  curl -sL https://raw.githubusercontent.com/kuartz-org/install_cursor/refs/heads/main/cursor.png -o "$ICON_DIR/cursor.png"
 fi
 
 if ! grep -q "alias cursor='launch_cursor ." ~/.zshrc; then
