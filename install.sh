@@ -4,12 +4,31 @@ CURRENT_DIR=$(pwd)
 
 cd /tmp
 
-curl -sL "https://www.cursor.com/api/download?platform=linux-x64&releaseTrack=stable" | jq -r '.downloadUrl' | xargs curl -sL -o cursor.appimage
+CURRENT_VERSION=""
+if [ -f "/usr/share/applications/cursor.desktop" ]; then
+    CURRENT_VERSION=$(grep "^Version=" /usr/share/applications/cursor.desktop | cut -d'=' -f2 || echo "")
+fi
 
-sudo mv cursor.appimage /opt/cursor.appimage
-sudo chmod +x /opt/cursor.appimage
-sudo apt install -y fuse3
-sudo apt install -y libfuse2t64
+API_RESPONSE=$(curl -sL "https://www.cursor.com/api/download?platform=linux-x64&releaseTrack=stable")
+LATEST_DOWNLOAD_URL=$(echo "$API_RESPONSE" | jq -r '.downloadUrl')
+LATEST_VERSION=$(echo "$API_RESPONSE" | jq -r '.version')
+
+if [ -z "$CURRENT_VERSION" ] || [ "$CURRENT_VERSION" != "$LATEST_VERSION" ]; then
+    echo "Downloading latest version of Cursor (v$LATEST_VERSION)…"
+    curl -sL "$LATEST_DOWNLOAD_URL" -o cursor.appimage
+    sudo mv cursor.appimage /opt/cursor.appimage
+    sudo chmod +x /opt/cursor.appimage
+    echo "Cursor updated to version $LATEST_VERSION"
+else
+    echo "Cursor is already up to date (version $CURRENT_VERSION)"
+fi
+# Check if fuse3 is installed and up to date
+if ! dpkg -l | grep -q "^ii.*fuse3"; then
+    sudo apt install -y fuse3
+fi
+if apt-cache show libfuse2t64 > /dev/null 2>&1; then
+  sudo apt install -y libfuse2t64
+fi
 
 DESKTOP_FILE="/usr/share/applications/cursor.desktop"
 
@@ -21,13 +40,8 @@ Exec=/opt/cursor.appimage --no-sandbox
 Icon=/home/$USER/.local/share/omakub/applications/icons/cursor.png
 Type=Application
 Categories=Development;IDE;
+Version=$LATEST_VERSION
 EOL
-
-if [ -f "$DESKTOP_FILE" ]; then
-  echo "cursor.desktop created successfully"
-else
-  echo "Failed to create cursor.desktop"
-fi
 
 if [ ! -d "~/.local/bin/launch_cursor" ]; then
   curl -sL https://raw.githubusercontent.com/kuartz-org/install_cursor/refs/heads/main/launch_cursor -o ~/.local/bin/launch_cursor
@@ -36,9 +50,8 @@ fi
 
 if ! grep -q "alias cursor='launch_cursor ." ~/.zshrc; then
   echo "alias cursor='launch_cursor .'" >>~/.zshrc
+  echo "Cursor installed successfully."
+  echo "Use 'cursor' command to launch Cursor"
 fi
 
 cd "$CURRENT_DIR"
-
-echo "Cursor installed successfully."
-echo "Use 'cursor' command to launch Cursor"
