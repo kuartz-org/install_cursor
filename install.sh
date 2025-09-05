@@ -18,9 +18,9 @@ if [ -z "$CURRENT_VERSION" ] || [ "$CURRENT_VERSION" != "$LATEST_VERSION" ]; the
     curl -sL "$LATEST_DOWNLOAD_URL" -o cursor.appimage
     sudo mv cursor.appimage /opt/cursor.appimage
     sudo chmod +x /opt/cursor.appimage
-    echo "Cursor updated to version $LATEST_VERSION"
+    echo "Cursor updated ($LATEST_VERSION)."
 else
-    echo "Cursor is already up to date (version $CURRENT_VERSION)"
+    echo "Cursor is already the newest version ($CURRENT_VERSION)."
 fi
 # Check if fuse3 is installed and up to date
 if ! dpkg -l | grep -q "^ii.*fuse3"; then
