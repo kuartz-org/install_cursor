@@ -54,7 +54,7 @@ if [ ! -f "$ICON_DIR/cursor.png" ]; then
   curl -sL https://raw.githubusercontent.com/kuartz-org/install_cursor/refs/heads/main/cursor.png -o "$ICON_DIR/cursor.png"
 fi
 
-if ! grep -q "alias cursor='launch_cursor ." ~/.zshrc; then
+if ! zsh -ic 'alias cursor' >/dev/null 2>&1; then
   echo "alias cursor='launch_cursor .'" >>~/.zshrc
   echo "Cursor installed successfully."
   echo "Use 'cursor' command to launch Cursor"
